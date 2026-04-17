@@ -19,6 +19,7 @@ export interface HabitLog {
   habitId: string;
   uid: string;
   date: string;
+  timestamp?: any;
   value: number;
   completed: boolean;
 }
@@ -81,6 +82,7 @@ export function useHabits() {
         uid: user.uid,
         habitId,
         date: today,
+        timestamp: serverTimestamp(),
         value: goalVal, // Simplification: set to goal if toggled
         completed: true
       });
