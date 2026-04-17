@@ -21,6 +21,7 @@ export default function HabitDashboard() {
   const [activeTab, setActiveTab] = useState<'home' | 'analytics' | 'ai' | 'health'>('home');
   const [isAdding, setIsAdding] = useState(false);
   const [newHabit, setNewHabit] = useState({ name: '', goalValue: 1, unit: 'times', frequency: 'daily' });
+  const [formErrors, setFormErrors] = useState<{ name?: string; goalValue?: string; unit?: string }>({});
   const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
   const [insight, setInsight] = useState<HabitInsight | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -30,11 +31,25 @@ export default function HabitDashboard() {
 
   const todayStr = format(startOfToday(), 'yyyy-MM-dd');
 
+  const validateForm = () => {
+    const errors: { name?: string; goalValue?: string; unit?: string } = {};
+    if (!newHabit.name.trim()) errors.name = 'Habit name is required';
+    if (newHabit.goalValue <= 0) errors.goalValue = 'Goal must be a positive number';
+    if (!newHabit.unit.trim()) errors.unit = 'Unit is required (e.g., times, mins)';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleAddHabit = async (e?: React.FormEvent, customData?: any) => {
     if (e) e.preventDefault();
+    
+    // Skip complex validation if it's customData (e.g. from recommendations)
+    if (!customData && !validateForm()) return;
+
     await addHabit(customData || newHabit);
     setIsAdding(false);
     setNewHabit({ name: '', goalValue: 1, unit: 'times', frequency: 'daily' });
+    setFormErrors({});
   };
 
   const fetchInsights = async (habit: Habit) => {
@@ -247,31 +262,33 @@ export default function HabitDashboard() {
                  <div>
                    <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-2">What's the habit?</label>
                    <input 
-                     required
-                     className="w-full text-lg border-b border-white/10 focus:border-[#8B5CF6] outline-none pb-2 bg-transparent transition-all placeholder:text-[#334155]"
+                     className={`w-full text-lg border-b ${formErrors.name ? 'border-rose-500' : 'border-white/10'} focus:border-[#8B5CF6] outline-none pb-2 bg-transparent transition-all placeholder:text-[#334155]`}
                      placeholder="e.g., Read Quran"
                      value={newHabit.name}
                      onChange={e => setNewHabit({ ...newHabit, name: e.target.value })}
                    />
+                   {formErrors.name && <p className="text-[10px] text-rose-500 mt-1 font-bold">{formErrors.name}</p>}
                  </div>
                  <div className="grid grid-cols-2 gap-4">
                    <div>
                      <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-2">Goal</label>
                      <input 
                        type="number"
-                       className="w-full border-b border-white/10 focus:border-[#8B5CF6] outline-none pb-2 bg-transparent"
+                       className={`w-full border-b ${formErrors.goalValue ? 'border-rose-500' : 'border-white/10'} focus:border-[#8B5CF6] outline-none pb-2 bg-transparent`}
                        value={newHabit.goalValue}
                        onChange={e => setNewHabit({ ...newHabit, goalValue: Number(e.target.value) })}
                      />
+                     {formErrors.goalValue && <p className="text-[10px] text-rose-500 mt-1 font-bold">{formErrors.goalValue}</p>}
                    </div>
                    <div>
                      <label className="block text-xs font-bold text-[#94A3B8] uppercase tracking-widest mb-2">Unit</label>
                      <input 
-                       className="w-full border-b border-white/10 focus:border-[#8B5CF6] outline-none pb-2 bg-transparent"
+                       className={`w-full border-b ${formErrors.unit ? 'border-rose-500' : 'border-white/10'} focus:border-[#8B5CF6] outline-none pb-2 bg-transparent`}
                        placeholder="mins, times, L"
                        value={newHabit.unit}
                        onChange={e => setNewHabit({ ...newHabit, unit: e.target.value })}
                      />
+                     {formErrors.unit && <p className="text-[10px] text-rose-500 mt-1 font-bold">{formErrors.unit}</p>}
                    </div>
                  </div>
                  <div>
