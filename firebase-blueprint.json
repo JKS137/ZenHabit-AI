@@ -1,0 +1,65 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user details and gamification progress.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique Firebase Auth ID" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "age": { "type": "number" },
+        "preferences": { "type": "object", "description": "User notification and theme preferences" },
+        "points": { "type": "number", "description": "Total gamification points" },
+        "badges": { "type": "array", "description": "List of earned badges" }
+      },
+      "required": ["uid", "name", "email"]
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "Defines a habit being tracked by the user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "uid": { "type": "string" },
+        "name": { "type": "string" },
+        "goalValue": { "type": "number" },
+        "unit": { "type": "string" },
+        "frequency": { "type": "string", "enum": ["daily", "weekly", "custom"] },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "reminders": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "goalValue", "frequency"]
+    },
+    "HabitLog": {
+      "title": "Habit Log",
+      "description": "Tracks completion of a specific habit on a specific date.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "habitId": { "type": "string" },
+        "uid": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "value": { "type": "number" },
+        "completed": { "type": "boolean" }
+      },
+      "required": ["habitId", "uid", "date", "completed"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile document"
+    },
+    "/habits/{habitId}": {
+      "schema": "Habit",
+      "description": "Habit definitions"
+    },
+    "/habitLogs/{logId}": {
+      "schema": "HabitLog",
+      "description": "Daily completion logs"
+    }
+  }
+}
